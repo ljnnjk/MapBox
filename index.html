@@ -315,11 +315,11 @@
                 location.properties['GC Who requested estimate'] && location.properties['GC Who requested estimate'].toLowerCase().includes(query3));
         }
 
-    if (query4.length >= 2 || fieldNumber === 4) { // Обработка поиска по адресу
-      filteredLocations = filteredLocations.filter(location =>
-        location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4)
-      );
-    }
+        if (query4.length >= 2 || fieldNumber === 4) { // Обработка поиска по адресу
+        filteredLocations = filteredLocations.filter(location =>
+            location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4)
+        );
+        }
 
         const uniqueNames = new Set();
         const uniqueBusinesses = new Set();
@@ -431,7 +431,7 @@
         }
         updateMarkers();
     });
-    
+
     document.getElementById('searchInput4').addEventListener('input', () => {
         const query4 = document.getElementById('searchInput4').value.trim();
         if (query4 === '') {
