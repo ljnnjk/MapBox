@@ -32,7 +32,7 @@
             margin-right: 15px;
             margin-bottom: 5px;
         }
-        #searchInput1, #searchInput2, #searchInput3 {
+        #searchInput1, #searchInput2, #searchInput3, #searchInput4 {
             flex: 1;
             padding: 8px;
             border: 1px solid #ccc;
@@ -40,7 +40,7 @@
             margin-right: 10px;
             margin-bottom: 10px; /* Add spacing between inputs */
         }
-        #searchResults1, #searchResults2, #searchResults3 {
+        #searchResults1, #searchResults2, #searchResults3, #searchResults4 {
             width: 100%;
             margin-top: 10px;
             border: 1px solid #ddd;
@@ -86,7 +86,7 @@
     <div id="searchResults2"></div>
     <input type="text" id="searchInput3" placeholder="Search by GC General Contractor" onkeyup="searchData(3)">
     <div id="searchResults3"></div>
-    <input type="text" id="searchInput3" placeholder="Search by Adress" onkeyup="searchData(4)">
+    <input type="text" id="searchInput4" placeholder="Search by Adress" onkeyup="searchData(4)">
     <div id="searchResults4"></div>
 </div>
 
@@ -135,6 +135,7 @@
     let searchResults1 = document.getElementById('searchResults1');
     let searchResults2 = document.getElementById('searchResults2');
     let searchResults3 = document.getElementById('searchResults3');
+    let searchResults4 = document.getElementById('searchResults4');
     const offset = 0.0001;
     const positionCounts = {};
     let currentQuery1 = '';
@@ -247,12 +248,13 @@
         map.getSource('places').setData(data);
     }
 
-    function updateMarkers() {
+   function updateMarkers() {
         const selectedStatuses = [];
         const selectedDates = [];
         const query1 = document.getElementById('searchInput1').value.toLowerCase().trim();
         const query2 = document.getElementById('searchInput2').value.toLowerCase().trim();
         const query3 = document.getElementById('searchInput3').value.toLowerCase().trim();
+        const query4 = document.getElementById('searchInput4').value.toLowerCase().trim();
 
         if (document.getElementById('SAFEFilter').checked) selectedStatuses.push('SAFE');
         if (document.getElementById('SWARMPFilter').checked) selectedStatuses.push('SWARMP');
@@ -269,12 +271,13 @@
             const matchesSearch1 = query1 === '' || (location.properties['QEWI Name'] && location.properties['QEWI Name'].toLowerCase().includes(query1));
             const matchesSearch2 = query2 === '' || (location.properties['QEWI Business Name'] && location.properties['QEWI Business Name'].toLowerCase().includes(query2));
             const matchesSearch3 = query3 === '' || (location.properties['GC Who requested estimate'] && location.properties['GC Who requested estimate'].toLowerCase().includes(query3));
+             const matchesSearch4 = query4 === '' || (location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4));
             const matchesDates = selectedDates.length === 0 ||
                 (selectedDates.includes('Empty') && !location.properties['Job Date'] && !location.properties['Estimate Date']) ||
                 (selectedDates.includes('Job Date') && location.properties['Job Date']) ||
                 (selectedDates.includes('Estimate Date') && location.properties['Estimate Date'] && !location.properties['Job Date']);
 
-            return matchesStatus && matchesSearch1 && matchesSearch2 && matchesSearch3 && matchesDates;
+            return matchesStatus && matchesSearch1 && matchesSearch2 && matchesSearch3 && matchesSearch4 && matchesDates;
         });
 
         updateGeoJSONData({
@@ -287,7 +290,7 @@
         const query1 = document.getElementById('searchInput1').value.toLowerCase().trim();
         const query2 = document.getElementById('searchInput2').value.toLowerCase().trim();
         const query3 = document.getElementById('searchInput3').value.toLowerCase().trim();
-         const query4 = document.getElementById('searchInput4').value.toLowerCase().trim(); // Получаем значение из нового поля
+        const query4 = document.getElementById('searchInput4').value.toLowerCase().trim(); // Получаем значение из нового поля
 
         searchResults1.innerHTML = '';
         searchResults2.innerHTML = '';
@@ -439,6 +442,7 @@
         }
         updateMarkers();
     });
+
 
     function closePopup() {
         document.getElementById('popupContainer').style.display = 'none';
