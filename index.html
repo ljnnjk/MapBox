@@ -316,9 +316,8 @@
         }
 
         if (query4.length >= 2 || fieldNumber === 4) { // Обработка поиска по адресу
-        filteredLocations = filteredLocations.filter(location =>
-            location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4)
-        );
+            filteredLocations = filteredLocations.filter(location =>
+                location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4));
         }
 
         const uniqueNames = new Set();
