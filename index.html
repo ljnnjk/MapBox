@@ -31,25 +31,21 @@
             display: flex;
             flex-wrap: wrap;
             flex-direction: row; /* Изменяем на row */
+            position: relative;
         }
         #searchInput1, #searchInput2, #searchInput3, #searchInput4 {
             flex: 1;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-             width: 48%; /* Устанавливаем ширину для 2 колонок */
-            margin-bottom: 0; /* Убираем отступ снизу, так как есть margin */
+            width: 48%; /* Устанавливаем ширину для 2 колонок */
+            margin-bottom: 10px; /* Добавляем отступ снизу */
             margin-right: 10px; /* Добавляем отступ справа */
             box-sizing: border-box; /* Учитываем padding и border в ширине */
         }
         
         #searchInput2, #searchInput4 {
           margin-right: 0; /* Убираем отступ справа у второго и четвертого элемента */
-        }
-        
-        .searchPanel input:nth-child(1),
-        .searchPanel input:nth-child(2){
-           margin-bottom: 10px;
         }
         
         .result-item {
@@ -77,6 +73,18 @@
             top: 10px;
             right: 10px;
             cursor: pointer;
+        }
+        #searchResults1, #searchResults2, #searchResults3, #searchResults4 {
+            width: 100%;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            max-height: 150px; /* Ограничиваем максимальную высоту */
+            overflow-y: auto;
+            display: none;
+            position: absolute; /* Абсолютное позиционирование */
+                z-index: 10;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
