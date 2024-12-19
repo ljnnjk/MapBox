@@ -80,12 +80,14 @@
 <body>
 
 <div id="searchPanel">
-    <input type="text" id="searchInput1" placeholder="Поиск по QEWI Name" onkeyup="searchData(1)">
+    <input type="text" id="searchInput1" placeholder="Search by QEWI Name" onkeyup="searchData(1)">
     <div id="searchResults1"></div>
-    <input type="text" id="searchInput2" placeholder="Поиск по QEWI Business Name" onkeyup="searchData(2)">
+    <input type="text" id="searchInput2" placeholder="Search by QEWI Business Name" onkeyup="searchData(2)">
     <div id="searchResults2"></div>
-    <input type="text" id="searchInput3" placeholder="Поиск по GC General Contractor" onkeyup="searchData(3)">
+    <input type="text" id="searchInput3" placeholder="Search by GC General Contractor" onkeyup="searchData(3)">
     <div id="searchResults3"></div>
+    <input type="text" id="searchInput3" placeholder="Search by Adress" onkeyup="searchData(4)">
+    <div id="searchResults4"></div>
 </div>
 
 <div id="filterPanel">
@@ -285,13 +287,16 @@
         const query1 = document.getElementById('searchInput1').value.toLowerCase().trim();
         const query2 = document.getElementById('searchInput2').value.toLowerCase().trim();
         const query3 = document.getElementById('searchInput3').value.toLowerCase().trim();
+         const query4 = document.getElementById('searchInput4').value.toLowerCase().trim(); // Получаем значение из нового поля
 
         searchResults1.innerHTML = '';
         searchResults2.innerHTML = '';
         searchResults3.innerHTML = '';
+        searchResults4.innerHTML = ''; // Очищаем результаты поиска по адресу
         searchResults1.style.display = 'none';
         searchResults2.style.display = 'none';
         searchResults3.style.display = 'none';
+        searchResults4.style.display = 'none'; // Скрываем список результатов
 
         let filteredLocations = allLocations;
 
@@ -310,14 +315,22 @@
                 location.properties['GC Who requested estimate'] && location.properties['GC Who requested estimate'].toLowerCase().includes(query3));
         }
 
+    if (query4.length >= 2 || fieldNumber === 4) { // Обработка поиска по адресу
+      filteredLocations = filteredLocations.filter(location =>
+        location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4)
+      );
+    }
+
         const uniqueNames = new Set();
         const uniqueBusinesses = new Set();
         const uniqueGCs = new Set();
+        const uniqueAddresses = new Set(); // Новый Set для адресов
 
         filteredLocations.forEach(location => {
             if (location.properties['QEWI Name']) uniqueNames.add(location.properties['QEWI Name']);
             if (location.properties['QEWI Business Name']) uniqueBusinesses.add(location.properties['QEWI Business Name']);
             if (location.properties['GC Who requested estimate']) uniqueGCs.add(location.properties['GC Who requested estimate']);
+            if (location.properties['Address']) uniqueAddresses.add(location.properties['Address']); // Добавляем адрес в set
         });
 
         if (fieldNumber === 1 && query1.length > 0) {
@@ -371,6 +384,24 @@
             }
         }
 
+     if (fieldNumber === 4 && query4.length > 0) { // Отображение результатов поиска адреса
+        if (uniqueAddresses.size > 0) {
+            searchResults4.style.display = 'block';
+            uniqueAddresses.forEach(address => {
+              const resultItem = document.createElement('div');
+              resultItem.className = 'result-item';
+              resultItem.textContent = address;
+              resultItem.onclick = () => {
+                document.getElementById('searchInput4').value = address;
+                updateMarkers();
+                searchResults4.style.display = 'none';
+              };
+              searchResults4.appendChild(resultItem);
+            });
+          }
+       }
+
+
         updateMarkers();
     }
 
@@ -397,6 +428,15 @@
         if (query3 === '') {
             searchResults3.innerHTML = '';
             searchResults3.style.display = 'none';
+        }
+        updateMarkers();
+    });
+    
+    document.getElementById('searchInput4').addEventListener('input', () => {
+        const query4 = document.getElementById('searchInput4').value.trim();
+        if (query4 === '') {
+            searchResults4.innerHTML = '';
+            searchResults4.style.display = 'none';
         }
         updateMarkers();
     });
