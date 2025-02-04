@@ -253,7 +253,14 @@
             });
 
         map.on('click', 'places-layer', (e) => {
+            console.log('Click detected on places-layer'); // Лог для отладки
+            if (!e.features || e.features.length === 0) {
+                console.log('No features found'); // Лог, если нет данных
+                return;
+            }
+        
             const properties = e.features[0].properties;
+            console.log('Properties:', properties); // Лог свойств точки
             
             const infoWindowContent = `
                 <div class="popup-content">
