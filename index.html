@@ -214,6 +214,8 @@
     let currentQuery2 = '';
     let currentQuery3 = '';
 
+    let activePopup = null; // Переменная для хранения текущего попапа
+
     map.on('load', () => {
         map.addSource('places', {
             type: 'geojson',
@@ -261,7 +263,14 @@
         
             const properties = e.features[0].properties;
             console.log('Properties:', properties); // Лог свойств точки
-            
+
+            // Закрываем предыдущий попап, если он есть
+            if (activePopup) {
+                activePopup.remove();
+                activePopup = null;
+            }
+
+            // Создаем новый попап
             const infoWindowContent = `
                 <div class="popup-content">
                     <span id="popupCloseButton" onclick="closePopup()">×</span>
@@ -300,9 +309,11 @@
             popupContainer.innerHTML = infoWindowContent;
             popupContainer.style.display = 'block';
             
-            setTimeout(() => {
-                document.addEventListener('click', outsideClickListener);
-            }, 0);
+            // Устанавливаем текущий попап
+            activePopup = new mapboxgl.Popup({ closeOnClick: false })
+                .setLngLat(e.lngLat)
+                .setHTML(infoWindowContent)
+                .addTo(map);
         });
     });
 
@@ -313,14 +324,6 @@
                 <span>${properties[key]}</span>
             </div>
         ` : '';
-    }
-
-    function outsideClickListener(event) {
-        const popup = document.getElementById('popupContainer');
-        if (!popup.contains(event.target)) {
-            closePopup();
-            document.removeEventListener('click', outsideClickListener);
-        }
     }
 
     function groupLocations() {
@@ -540,6 +543,10 @@
     });
 
     function closePopup() {
+        if (activePopup) {
+            activePopup.remove();
+            activePopup = null;
+        }
         document.getElementById('popupContainer').style.display = 'none';
     }
 </script>
