@@ -30,27 +30,28 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
             flex-wrap: wrap;
-            flex-direction: row; /* Изменяем на row */
+            flex-direction: row;
             position: relative;
         }
+        
         #searchInput1, #searchInput2, #searchInput3, #searchInput4 {
             flex: 1;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            width: 48%; /* Устанавливаем ширину для 2 колонок */
-            margin-bottom: 10px; /* Добавляем отступ снизу */
-            margin-right: 10px; /* Добавляем отступ справа */
-            box-sizing: border-box; /* Учитываем padding и border в ширине */
+            width: 48%;
+            margin-bottom: 10px;
+            margin-right: 10px;
+            box-sizing: border-box;
         }
         
         #searchInput4 {
-          margin-right: 0; /* Убираем отступ справа у второго и четвертого элемента */
+            margin-right: 0;
         }
 
         #searchInput2 {
-            margin-right: 10; /* Убираем отступ справа у второго и четвертого элемента */
-          }
+            margin-right: 10;
+        }
         
         .result-item {
             padding: 8px;
@@ -59,36 +60,92 @@
         .result-item:hover {
             background-color: #f1f1f1;
         }
+        
+        /* Updated Popup Styles */
         #popupContainer {
-            position: absolute;
+            position: fixed;
             z-index: 1000;
-            top: 10px;
-            left: 10px;
             background-color: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: none;
-            max-height: 400px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
             overflow-y: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
+
+        .popup-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-right: 15px;
+        }
+
+        .popup-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .popup-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .popup-content h3 {
+            grid-column: 1 / -1;
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #222;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .popup-property {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .popup-property strong {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .popup-property span {
+            font-size: 14px;
+            color: #333;
+            word-break: break-word;
+        }
+
         #popupCloseButton {
             position: absolute;
             top: 10px;
             right: 10px;
             cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            color: #666;
+            z-index: 1001;
         }
+
         #searchResults1, #searchResults2, #searchResults3, #searchResults4 {
             width: 100%;
             margin-top: 5px;
             border: 1px solid #ddd;
             background-color: #fff;
-            max-height: 150px; /* Ограничиваем максимальную высоту */
+            max-height: 150px;
             overflow-y: auto;
             display: none;
-            position: absolute; /* Абсолютное позиционирование */
-                z-index: 10;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -101,7 +158,7 @@
     <div id="searchResults2"></div>
     <input type="text" id="searchInput3" placeholder="Search by GC General Contractor" onkeyup="searchData(3)">
     <div id="searchResults3"></div>
-    <input type="text" id="searchInput4" placeholder="Search by Adress" onkeyup="searchData(4)">
+    <input type="text" id="searchInput4" placeholder="Search by Address" onkeyup="searchData(4)">
     <div id="searchResults4"></div>
 </div>
 
@@ -196,50 +253,68 @@
             });
 
         map.on('click', 'places-layer', (e) => {
-            const coordinates = e.features[0].geometry.coordinates.slice();
             const properties = e.features[0].properties;
+            
             const infoWindowContent = `
-                <span id="popupCloseButton" onclick="closePopup()">×</span>
-                <h3>${properties.Address}</h3>
-                ${properties['Cycle'] ? `<p><strong>Cycle:</strong> ${properties['Cycle']}</p>` : ''}
-                ${properties['Control Number'] ? `<p><strong>Control Number:</strong> ${properties['Control Number']}</p>` : ''}
-                ${properties['Initial Filing Status'] ? `<p><strong>Initial Filing Status:</strong> ${properties['Initial Filing Status']}</p>` : ''}
-                ${properties['Current Filing Status'] ? `<p><strong>Current Filing Status:</strong> ${properties['Current Filing Status']}</p>` : ''}
-                ${properties['Effective Filing Date'] ? `<p><strong>Effective Filing Date:</strong> ${properties['Effective Filing Date']}</p>` : ''}
-                ${properties['SWARMP Completion Date'] ? `<p><strong>SWARMP Completion Date:</strong> ${properties['SWARMP Completion Date']}</p>` : ''}
-                ${properties['QEWI Name'] ? `<p><strong>QEWI Name:</strong> ${properties['QEWI Name']}</p>` : ''}
-                ${properties['QEWI Name'] ? `<p><strong>QEWI Business Name:</strong> ${properties['QEWI Name']}</p>` : ''}
-                ${properties['QEWI E-mail'] ? `<p><strong>QEWI E-mail:</strong> ${properties['QEWI E-mail']}</p>` : ''}
-                ${properties['QEWI Phone'] ? `<p><strong>QEWI Phone:</strong> ${properties['QEWI Phone']}</p>` : ''}
-                ${properties['QEWI AF ID'] ? `<p><strong>QEWI AF ID:</strong> ${properties['QEWI AF ID']}</p>` : ''}
-                ${properties['Owner Name'] ? `<p><strong>Owner Name:</strong> ${properties['Owner Name']}</p>` : ''}
-                ${properties['Owner Type'] ? `<p><strong>Owner Type:</strong> ${properties['Owner Type']}</p>` : ''}
-                ${properties['Number'] ? `<p><strong>Number:</strong> ${properties['Number']}</p>` : ''}
-                ${properties['Address'] ? `<p><strong>Address:</strong> ${properties['Address']}</p>` : ''}
-                ${properties['Bin'] ? `<p><strong>Bin:</strong> ${properties['Bin']}</p>` : ''}
-                ${properties['Hired By'] ? `<p><strong>Hired By:</strong> ${properties['Hired By']}</p>` : ''}
-                ${properties['Borough'] ? `<p><strong>Borough:</strong> ${properties['Borough']}</p>` : ''}
-                ${properties['Block'] ? `<p><strong>Block:</strong> ${properties['Block']}</p>` : ''}
-                ${properties['Lot'] ? `<p><strong>Lot:</strong> ${properties['Lot']}</p>` : ''}
-                ${properties['Unsafe Completion Date'] ? `<p><strong>Unsafe Completion Date:</strong> ${properties['Unsafe Completion Date']}</p>` : ''}
-                ${properties['Estimate Date'] ? `<p><strong>Estimate Date:</strong> ${properties['Estimate Date']}</p>` : ''}
-                ${properties['Job Date'] ? `<p><strong>Job Date:</strong> ${properties['Job Date']}</p>` : ''}
-                ${properties['GC Who requested estimate'] ? `<p><strong>GC Who requested estimate:</strong> ${properties['GC Who requested estimate']}</p>` : ''}
-                ${properties['How'] ? `<p><strong>How:</strong> ${properties['How']}</p>` : ''}
-                ${properties['Building Management'] ? `<p><strong>Building Management:</strong> ${properties['Building Management']}</p>` : ''}
-                ${properties['BM Name'] ? `<p><strong>BM Name:</strong> ${properties['BM Name']}</p>` : ''}
-                ${properties['BM E-mail'] ? `<p><strong>BM E-mail:</strong> ${properties['BM E-mail']}</p>` : ''}
-                ${properties['BM Phone'] ? `<p><strong>BM Phone:</strong> ${properties['BM Phone']}</p>` : ''}
-                ${properties['BM AF ID'] ? `<p><strong>BM AF ID:</strong> ${properties['BM AF ID']}</p>` : ''}
-                ${properties['Notes'] ? `<p><strong>Notes:</strong> ${properties['Notes']}</p>` : ''}
+                <div class="popup-content">
+                    <span id="popupCloseButton" onclick="closePopup()">×</span>
+                    <h3>${properties.Address || 'No Address'}</h3>
+                    <div class="popup-column">
+                        ${formatProperty(properties, 'Cycle')}
+                        ${formatProperty(properties, 'Control Number')}
+                        ${formatProperty(properties, 'Initial Filing Status')}
+                        ${formatProperty(properties, 'Current Filing Status')}
+                        ${formatProperty(properties, 'Effective Filing Date')}
+                        ${formatProperty(properties, 'SWARMP Completion Date')}
+                        ${formatProperty(properties, 'QEWI Name')}
+                        ${formatProperty(properties, 'QEWI Business Name')}
+                        ${formatProperty(properties, 'QEWI E-mail')}
+                        ${formatProperty(properties, 'QEWI Phone')}
+                        ${formatProperty(properties, 'QEWI AF ID')}
+                    </div>
+                    <div class="popup-column">
+                        ${formatProperty(properties, 'Owner Name')}
+                        ${formatProperty(properties, 'Owner Type')}
+                        ${formatProperty(properties, 'Bin')}
+                        ${formatProperty(properties, 'Hired By')}
+                        ${formatProperty(properties, 'Borough')}
+                        ${formatProperty(properties, 'Block')}
+                        ${formatProperty(properties, 'Lot')}
+                        ${formatProperty(properties, 'Unsafe Completion Date')}
+                        ${formatProperty(properties, 'Estimate Date')}
+                        ${formatProperty(properties, 'Job Date')}
+                        ${formatProperty(properties, 'GC Who requested estimate')}
+                        ${formatProperty(properties, 'Notes')}
+                    </div>
+                </div>
             `;
 
             const popupContainer = document.getElementById('popupContainer');
-            popupContainer.innerHTML = '';
             popupContainer.innerHTML = infoWindowContent;
             popupContainer.style.display = 'block';
+            
+            setTimeout(() => {
+                document.addEventListener('click', outsideClickListener);
+            }, 0);
         });
     });
+
+    function formatProperty(properties, key) {
+        return properties[key] ? `
+            <div class="popup-property">
+                <strong>${key}:</strong>
+                <span>${properties[key]}</span>
+            </div>
+        ` : '';
+    }
+
+    function outsideClickListener(event) {
+        const popup = document.getElementById('popupContainer');
+        if (!popup.contains(event.target)) {
+            closePopup();
+            document.removeEventListener('click', outsideClickListener);
+        }
+    }
 
     function groupLocations() {
         allLocations.forEach(location => {
@@ -263,7 +338,7 @@
         map.getSource('places').setData(data);
     }
 
-   function updateMarkers() {
+    function updateMarkers() {
         const selectedStatuses = [];
         const selectedDates = [];
         const query1 = document.getElementById('searchInput1').value.toLowerCase().trim();
@@ -286,7 +361,7 @@
             const matchesSearch1 = query1 === '' || (location.properties['QEWI Name'] && location.properties['QEWI Name'].toLowerCase().includes(query1));
             const matchesSearch2 = query2 === '' || (location.properties['QEWI Business Name'] && location.properties['QEWI Business Name'].toLowerCase().includes(query2));
             const matchesSearch3 = query3 === '' || (location.properties['GC Who requested estimate'] && location.properties['GC Who requested estimate'].toLowerCase().includes(query3));
-             const matchesSearch4 = query4 === '' || (location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4));
+            const matchesSearch4 = query4 === '' || (location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4));
             const matchesDates = selectedDates.length === 0 ||
                 (selectedDates.includes('Empty') && !location.properties['Job Date'] && !location.properties['Estimate Date']) ||
                 (selectedDates.includes('Job Date') && location.properties['Job Date']) ||
@@ -305,16 +380,16 @@
         const query1 = document.getElementById('searchInput1').value.toLowerCase().trim();
         const query2 = document.getElementById('searchInput2').value.toLowerCase().trim();
         const query3 = document.getElementById('searchInput3').value.toLowerCase().trim();
-        const query4 = document.getElementById('searchInput4').value.toLowerCase().trim(); // Получаем значение из нового поля
+        const query4 = document.getElementById('searchInput4').value.toLowerCase().trim();
 
         searchResults1.innerHTML = '';
         searchResults2.innerHTML = '';
         searchResults3.innerHTML = '';
-        searchResults4.innerHTML = ''; // Очищаем результаты поиска по адресу
+        searchResults4.innerHTML = '';
         searchResults1.style.display = 'none';
         searchResults2.style.display = 'none';
         searchResults3.style.display = 'none';
-        searchResults4.style.display = 'none'; // Скрываем список результатов
+        searchResults4.style.display = 'none';
 
         let filteredLocations = allLocations;
 
@@ -333,7 +408,7 @@
                 location.properties['GC Who requested estimate'] && location.properties['GC Who requested estimate'].toLowerCase().includes(query3));
         }
 
-        if (query4.length >= 2 || fieldNumber === 4) { // Обработка поиска по адресу
+        if (query4.length >= 2 || fieldNumber === 4) {
             filteredLocations = filteredLocations.filter(location =>
                 location.properties['Address'] && location.properties['Address'].toLowerCase().includes(query4));
         }
@@ -341,13 +416,13 @@
         const uniqueNames = new Set();
         const uniqueBusinesses = new Set();
         const uniqueGCs = new Set();
-        const uniqueAddresses = new Set(); // Новый Set для адресов
+        const uniqueAddresses = new Set();
 
         filteredLocations.forEach(location => {
             if (location.properties['QEWI Name']) uniqueNames.add(location.properties['QEWI Name']);
             if (location.properties['QEWI Business Name']) uniqueBusinesses.add(location.properties['QEWI Business Name']);
             if (location.properties['GC Who requested estimate']) uniqueGCs.add(location.properties['GC Who requested estimate']);
-            if (location.properties['Address']) uniqueAddresses.add(location.properties['Address']); // Добавляем адрес в set
+            if (location.properties['Address']) uniqueAddresses.add(location.properties['Address']);
         });
 
         if (fieldNumber === 1 && query1.length > 0) {
@@ -401,23 +476,22 @@
             }
         }
 
-     if (fieldNumber === 4 && query4.length > 0) { // Отображение результатов поиска адреса
-        if (uniqueAddresses.size > 0) {
-            searchResults4.style.display = 'block';
-            uniqueAddresses.forEach(address => {
-              const resultItem = document.createElement('div');
-              resultItem.className = 'result-item';
-              resultItem.textContent = address;
-              resultItem.onclick = () => {
-                document.getElementById('searchInput4').value = address;
-                updateMarkers();
-                searchResults4.style.display = 'none';
-              };
-              searchResults4.appendChild(resultItem);
-            });
-          }
-       }
-
+        if (fieldNumber === 4 && query4.length > 0) {
+            if (uniqueAddresses.size > 0) {
+                searchResults4.style.display = 'block';
+                uniqueAddresses.forEach(address => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    resultItem.textContent = address;
+                    resultItem.onclick = () => {
+                        document.getElementById('searchInput4').value = address;
+                        updateMarkers();
+                        searchResults4.style.display = 'none';
+                    };
+                    searchResults4.appendChild(resultItem);
+                });
+            }
+        }
 
         updateMarkers();
     }
@@ -457,7 +531,6 @@
         }
         updateMarkers();
     });
-
 
     function closePopup() {
         document.getElementById('popupContainer').style.display = 'none';
